@@ -20,7 +20,8 @@ namespace demo
         int ShopId = 0;
         int salesId = 0;
         String str;
-        
+        int SalesID;
+
         public frmSalesMaster()
         {
             InitializeComponent();
@@ -28,17 +29,61 @@ namespace demo
 
         private void button4_Click(object sender, EventArgs e)
         {
-            if (txtBillNo.Text == String.Empty)
+            frmSearch objSearch = new frmSearch(2);
+            objSearch.ShowDialog(this);
+            SalesID = Module.FindId;
+            DataTable dt = new DataTable();
+            str = string.Empty;
+            str = "select salesMaster.billNo,salesMaster.billDate,salesMaster.terms, salesMaster.duedate, salesMaster.dispatchDetails, salesMaster.state, salesMaster.code, salesMaster.supply,  partyMaster.partyName from (salesMaster " +
+                  "inner join partyMaster on salesMaster.partyId = partyMaster.id )" +
+                  "where salesMaster.id = " + SalesID + " and salesMaster.companyId=" + Module.CompanyId + "";
+            dt = CLS.FillDataTable(str);
+
+            if (dt.Rows.Count > 0)
             {
-                MessageBox.Show("Please Enter Bill No!", Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
-                txtBillNo.Focus();
-                return;
+                txtPartyName.Text = dt.Rows[0]["partyName"].ToString();
+                txtBillNo.Text = dt.Rows[0]["billNo"].ToString();
+                dtpBillDate.Value = Convert.ToDateTime(dt.Rows[0]["billDate"].ToString());
+                txtTerms.Text = dt.Rows[0]["terms"].ToString();
+                dtpDueDate.Value = Convert.ToDateTime(dt.Rows[0]["duedate"].ToString());
+                txtDispatch.Text = dt.Rows[0]["dispatchDetails"].ToString();
+                txtState.Text = dt.Rows[0]["state"].ToString();
+                txtCode.Text = dt.Rows[0]["code"].ToString();
+                txtPlaceSupply.Text = dt.Rows[0]["supply"].ToString();
             }
-            else
+            dt = null;
+            dt = new DataTable();
+            str = string.Empty;
+
+            str = "select itemMaster.itemName, itemMaster.itemHSNCode, salesDetails.* from ((salesMaster " +
+                  "inner join salesDetails on salesMaster.id = salesDetails.salesId) " +
+                  "inner join itemMaster on itemMaster.id = salesDetails.itemId )" +
+                  "where SalesDetails.SalesId = " + SalesID + " and salesMaster.companyId=" + Module.CompanyId + "";
+
+            dt = CLS.FillDataTable(str);
+            listView1.Items.Clear();
+            foreach (DataRow dr in dt.Rows)
             {
-                FillData(txtBillNo.Text.ToString());
-                btnSave.Enabled = false;
+                listView1.Items.Add(Convert.ToString(listView1.Items.Count + 1));
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["ItemId"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["itemName"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["itemHSNCode"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["qty"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["rate"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["amount"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["cgstper"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["cgstAmt"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["sgstper"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["sgstAmt"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["igstper"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["igstAmt"].ToString());
+                listView1.Items[listView1.Items.Count - 1].SubItems.Add(dr["totalAmount"].ToString());
             }
+            txtSrNo.Text = (listView1.Items.Count + 1).ToString();
+            txtPartyName.Focus();
+            TotalCalculation();
+            btnSave.Enabled = false;
+            
         }
 
         public void clearData()

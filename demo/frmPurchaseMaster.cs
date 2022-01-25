@@ -394,11 +394,16 @@ namespace demo
             dt = new DataTable();
             str = string.Empty;
 
-            str = "select itemMaster.itemName, itemMaster.itemHSNCode, purchaseDetails.* from (purchaseMaster " +
+            str = "select itemMaster.itemName, itemMaster.itemHSNCode, purchaseDetails.* from ((purchaseMaster " +
                   "inner join purchaseDetails on purchaseMaster.id = purchaseDetails.purchaseId) " +
-                  "inner join itemMaster on itemMaster.id = purchaseDetails.itemId " +
+                  "inner join itemMaster on itemMaster.id = purchaseDetails.itemId )" +
                   "inner join PartyMaster on partyMaster.id = purchaseMaster.partyid " +
-                  "where purchaseDetails.purchaseId = '" + PurchaseId + "' and purchaseMaster.companyId= " + Module.CompanyId + "";
+                  "where purchaseDetails.purchaseId = " + PurchaseId + " and purchaseMaster.companyId= " + Module.CompanyId + "";
+
+            //str = "SELECT ItemMaster.itemName, ItemMaster.itemHSNCode, purchaseDetails.qty, purchaseDetails.rate, purchaseDetails.amount, purchaseDetails.cgstPer, purchaseDetails.sgstPer, purchaseDetails.sgstAmt, purchaseDetails.igstPer, purchaseDetails.igstAmt, purchaseDetails.totalAmount, purchaseMaster.companyId, purchaseDetails.purchaseId " +
+            //      "FROM((purchaseMaster INNER JOIN purchaseDetails ON purchaseMaster.ID = purchaseDetails.purchaseId) INNER JOIN ItemMaster ON purchaseDetails.itemId = ItemMaster.ID) INNER JOIN partyMaster ON purchaseMaster.partyId = partyMaster.ID " +
+            //      "WHERE(((purchaseMaster.companyId) = " + Module.CompanyId + ") AND((purchaseDetails.purchaseId) = " + PurchaseId + ")) "; 
+            
 
             dt = CLS.FillDataTable(str);
             listView1.Items.Clear();
